@@ -1,23 +1,18 @@
-use axum::{routing::get, Router, http::StatusCode};
+use axum::{http::StatusCode, routing::get, Router};
+use std::net::SocketAddr;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
-use std::net::SocketAddr;
 
 #[derive(OpenApi)]
-    #[openapi(
-        paths(
-            api::handler,
-            api::health_check
-        )
-    )]
+#[openapi(paths(api::handler, api::health_check))]
 struct ApiDoc;
 
 #[tokio::main]
 async fn main() {
     let app = Router::new()
-    .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
-    .route("/", get(api::handler))
-    .route("/health_check", get(api::health_check));
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
+        .route("/", get(api::handler))
+        .route("/health_check", get(api::health_check));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
 
