@@ -17,7 +17,7 @@ async fn main() {
                 "zero_to_product=debug,tower_http=debug,axum::rejection=trace".into()
             }),
         )
-        .with(tracing_subscriber::fmt::layer().json())
+        .with(tracing_subscriber::fmt::layer().pretty())
         .init();
 
     let app = Router::new()
