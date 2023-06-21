@@ -15,4 +15,4 @@ RUN cargo build --release
 FROM debian:buster-slim AS runtime
 WORKDIR /app
 COPY --from=builder /app/target/release/ .
-ENTRYPOINT ["/app/zero_to_product"]
+ENTRYPOINT ["/app/zero_to_production"]
