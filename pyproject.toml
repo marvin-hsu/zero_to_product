@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "pytest end-to-end for zero_to_production"
 authors = ["Marvin Hsu <marvinhsu@nine-yi.com>"]
 readme = "README.md"
-packages = [{include = "."}]
+packages = [{include = "tests"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
