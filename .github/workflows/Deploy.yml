@@ -19,8 +19,8 @@ jobs:
           pip install pytest requests
       - name: Build Dockerfile and run image
         run: |
-          docker build -t fly-python .
-          docker run -p 3000:3000 myapp
+          docker build myapp
+          docker run -d -p 3000:3000 myapp
       - name: Run tests
         run: |
           poetry run pytest
