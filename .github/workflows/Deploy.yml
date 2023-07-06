@@ -23,7 +23,7 @@ jobs:
           docker run -d -p 3000:3000 myapp
       - name: Run tests
         run: |
-          poetry run pytest
+          pytest
   deploy:
     name: Deploy app
     needs: test
