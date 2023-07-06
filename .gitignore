@@ -1,6 +1,6 @@
 *.lock
-
-# Added by cargo
-
 /target
 /.vscode
+**/__pycache__/
+/.pytest_cache
+

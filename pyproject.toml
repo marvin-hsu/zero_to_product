@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "zero-to-production"
+version = "0.1.0"
+description = "pytest end-to-end for zero_to_production"
+authors = ["Marvin Hsu <marvinhsu@nine-yi.com>"]
+readme = "README.md"
+packages = [{include = "zero_to_production"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pytest = "^7.4.0"
+requests = "^2.31.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
