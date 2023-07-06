@@ -1,4 +1,4 @@
-FROM rust:1 AS chef 
+FROM rust:1.67 AS chef 
 RUN cargo install cargo-chef 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build --release
 
-FROM debian:buster-slim AS runtime
+FROM rust:1.67-slim AS runtime
 WORKDIR /app
 COPY --from=builder /app/target/release/ .
 ENTRYPOINT ["/app/zero_to_production"]
