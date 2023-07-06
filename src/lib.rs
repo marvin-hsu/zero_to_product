@@ -15,3 +15,12 @@ pub fn app() -> Router {
         .route("/health_check", get(handler::health_check))
         .layer(TraceLayer::new_for_http())
 }
+
+#[cfg(test)]
+mod test
+{
+    #[test]
+    fn dummy_test() {
+        assert!(true);
+    }
+}
