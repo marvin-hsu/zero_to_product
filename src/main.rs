@@ -1,7 +1,7 @@
 use std::net::SocketAddr;
 
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
-use zero_to_production::app;
+use zero_to_production::route::app;
 
 #[tokio::main]
 async fn main() {
