@@ -1,4 +1,7 @@
-use axum::{routing::{get, post}, Router};
+use axum::{
+    routing::{get, post},
+    Router,
+};
 use doc::ApiDoc;
 use tower_http::trace::TraceLayer;
 
@@ -12,6 +15,6 @@ pub fn app() -> Router {
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
         .route("/", get(handler::handler))
         .route("/health_check", get(handler::health_check))
-        .route("/subscribe", post(handler::subscription::subscribe))
+        .route("/subscribe", post(handler::subscribe))
         .layer(TraceLayer::new_for_http())
 }
