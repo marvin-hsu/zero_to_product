@@ -1,3 +1,5 @@
+pub mod subscription;
+
 use axum::http::StatusCode;
 use tracing::instrument;
 
