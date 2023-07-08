@@ -1,32 +1,34 @@
 use crate::domain::*;
 
-use axum::{extract::RawForm, http::StatusCode};
+use axum::{extract::Form, http::StatusCode};
 use serde::Deserialize;
-use tracing::instrument;
+use tracing::{info, instrument};
 use utoipa::ToSchema;
 
 #[derive(Deserialize, Debug, ToSchema)]
 pub struct FormData {
-    pub email: Option<String>,
-    pub name: Option<String>,
+    /// Subscriber Name
+    pub email: String,
+    /// Subscriber Email
+    pub name: String,
 }
 
 #[utoipa::path(
     post,
-     path = "/subscribe",
-      tag = "subscription",
-      request_body(
+    path = "/subscriptions",
+    tag = "subscription",
+    request_body(
         content = FormData,
-        content_type = "application/x-www-form-urlencoded"))]
+        content_type = "application/x-www-form-urlencoded"),
+    responses(
+        (status = 200),
+        (status = 400)
+    ))]
 #[instrument]
-pub async fn subscribe(RawForm(form): RawForm) -> StatusCode {
-    let form_data: FormData = serde_urlencoded::from_bytes(&form).unwrap();
-
-    if form_data.email.is_some() && form_data.name.is_some() {
-        let subscriber = Subscriber::try_from(form_data).unwrap();
-        StatusCode::OK
-    } else {
-        StatusCode::BAD_REQUEST
+pub async fn subscribe(Form(data): Form<FormData>) -> StatusCode {
+    match Subscriber::try_from(data) {
+        Ok(subcriber) => StatusCode::OK,
+        Err(e) => StatusCode::BAD_REQUEST,
     }
 }
 
@@ -34,8 +36,8 @@ impl TryFrom<FormData> for Subscriber {
     type Error = String;
 
     fn try_from(value: FormData) -> Result<Self, Self::Error> {
-        let name = SubscriberName::parse(value.name.unwrap())?;
-        let email = SubscriberEmail::parse(value.email.unwrap())?;
+        let name = SubscriberName::parse(value.name)?;
+        let email = SubscriberEmail::parse(value.email)?;
         Ok(Subscriber {
             email: email,
             name: name,

@@ -13,8 +13,7 @@ use crate::{doc, handler};
 pub fn app() -> Router {
     Router::new()
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
-        .route("/", get(handler::handler))
         .route("/health_check", get(handler::health_check))
-        .route("/subscribe", post(handler::subscribe))
+        .route("/subscriptions", post(handler::subscribe))
         .layer(TraceLayer::new_for_http())
 }
