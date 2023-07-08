@@ -39,7 +39,7 @@ jobs:
         run: cargo test --verbose
   deploy:
     name: Deploy app
-    needs: [pytest,unit-test]
+    needs: [unit-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
