@@ -2,7 +2,7 @@ use crate::domain::*;
 
 use axum::{extract::Form, http::StatusCode};
 use serde::Deserialize;
-use tracing::{info, instrument};
+use tracing::instrument;
 use utoipa::ToSchema;
 
 #[derive(Deserialize, Debug, ToSchema)]
@@ -26,9 +26,10 @@ pub struct FormData {
     ))]
 #[instrument]
 pub async fn subscribe(Form(data): Form<FormData>) -> StatusCode {
-    match Subscriber::try_from(data) {
-        Ok(subcriber) => StatusCode::OK,
-        Err(e) => StatusCode::BAD_REQUEST,
+    if Subscriber::try_from(data).is_ok() {
+        StatusCode::OK
+    } else {
+        StatusCode::BAD_REQUEST
     }
 }
 
@@ -38,9 +39,6 @@ impl TryFrom<FormData> for Subscriber {
     fn try_from(value: FormData) -> Result<Self, Self::Error> {
         let name = SubscriberName::parse(value.name)?;
         let email = SubscriberEmail::parse(value.email)?;
-        Ok(Subscriber {
-            email: email,
-            name: name,
-        })
+        Ok(Subscriber { email, name })
     }
 }
