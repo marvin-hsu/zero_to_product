@@ -26,7 +26,6 @@ pub struct FormData {
     ))]
 #[instrument]
 pub async fn subscribe(Form(data): Form<FormData>) -> StatusCode {
-
     if Subscriber::try_from(data).is_ok() {
         StatusCode::OK
     } else {
