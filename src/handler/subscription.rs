@@ -1,9 +1,13 @@
-use crate::domain::*;
+use std::sync::Arc;
 
-use axum::{extract::Form, http::StatusCode};
+use crate::{domain::*, subscriptions, AppState};
+
+use axum::{extract::Form, http::StatusCode, Extension};
+use sea_orm::{ActiveModelTrait, Set};
 use serde::Deserialize;
 use tracing::instrument;
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 #[derive(Deserialize, Debug, ToSchema)]
 pub struct FormData {
@@ -25,9 +29,25 @@ pub struct FormData {
         (status = 400)
     ))]
 #[instrument]
-pub async fn subscribe(Form(data): Form<FormData>) -> StatusCode {
-    if Subscriber::try_from(data).is_ok() {
-        StatusCode::OK
+pub async fn subscribe(
+    Extension(state): Extension<Arc<AppState>>,
+    Form(data): Form<FormData>,
+) -> StatusCode {
+    if let Ok(subscriber) = Subscriber::try_from(data) {
+        let result = subscriptions::ActiveModel {
+            id: Set(Uuid::new_v4()),
+            email: Set(subscriber.email.as_ref().to_owned()),
+            name: Set(subscriber.name.as_ref().to_owned()),
+            subscribed_at: Set(chrono::Utc::now().into()),
+        }
+        .insert(&state.conn)
+        .await;
+
+        if result.is_ok() {
+            return StatusCode::OK;
+        } else {
+            return StatusCode::BAD_REQUEST;
+        }
     } else {
         StatusCode::BAD_REQUEST
     }

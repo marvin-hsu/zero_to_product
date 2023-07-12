@@ -17,7 +17,7 @@ async fn main() {
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
 
     axum::Server::bind(&addr)
-        .serve(app().into_make_service())
+        .serve(app().await.into_make_service())
         .await
         .unwrap();
 }
