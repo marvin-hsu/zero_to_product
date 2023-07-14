@@ -1,8 +1,9 @@
-use std::sync::Arc;
-
 use crate::{domain::*, subscriptions, AppState};
 
-use axum::{extract::Form, http::StatusCode, Extension};
+use axum::{
+    extract::{Form, State},
+    http::StatusCode,
+};
 use sea_orm::{ActiveModelTrait, Set};
 use serde::Deserialize;
 use tracing::instrument;
@@ -29,10 +30,7 @@ pub struct FormData {
         (status = 400)
     ))]
 #[instrument]
-pub async fn subscribe(
-    Extension(state): Extension<Arc<AppState>>,
-    Form(data): Form<FormData>,
-) -> StatusCode {
+pub async fn subscribe(state: State<AppState>, Form(data): Form<FormData>) -> StatusCode {
     if let Ok(subscriber) = Subscriber::try_from(data) {
         let result = subscriptions::ActiveModel {
             id: Set(Uuid::new_v4()),
@@ -40,7 +38,7 @@ pub async fn subscribe(
             name: Set(subscriber.name.as_ref().to_owned()),
             subscribed_at: Set(chrono::Utc::now().into()),
         }
-        .insert(&state.conn)
+        .insert(&state.database)
         .await;
 
         if result.is_ok() {

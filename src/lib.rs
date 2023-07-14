@@ -3,11 +3,11 @@ mod doc;
 mod domain;
 mod entity;
 mod handler;
-mod route;
+mod startup;
 
 pub use configuration::*;
 pub use doc::*;
 pub use domain::*;
 pub use entity::*;
 pub use handler::*;
-pub use route::*;
+pub use startup::*;
