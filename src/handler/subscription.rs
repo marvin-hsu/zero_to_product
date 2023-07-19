@@ -11,7 +11,7 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 
 #[derive(Deserialize, Debug, ToSchema)]
-pub struct FormData {
+pub struct NewSubscriber {
     /// Subscriber Email
     pub email: Option<String>,
     /// Subscriber Name
@@ -23,14 +23,14 @@ pub struct FormData {
     path = "/subscriptions",
     tag = "subscription",
     request_body(
-        content = FormData,
+        content = NewSubscriber,
         content_type = "application/x-www-form-urlencoded"),
     responses(
         (status = 200),
         (status = 400)
     ))]
 #[instrument]
-pub async fn subscribe(state: State<AppState>, Form(data): Form<FormData>) -> StatusCode {
+pub async fn subscribe(state: State<AppState>, Form(data): Form<NewSubscriber>) -> StatusCode {
     if let Ok(subscriber) = Subscriber::try_from(data) {
         let result = subscriptions::ActiveModel {
             id: Set(Uuid::new_v4()),
@@ -51,10 +51,10 @@ pub async fn subscribe(state: State<AppState>, Form(data): Form<FormData>) -> St
     }
 }
 
-impl TryFrom<FormData> for Subscriber {
+impl TryFrom<NewSubscriber> for Subscriber {
     type Error = String;
 
-    fn try_from(value: FormData) -> Result<Self, Self::Error> {
+    fn try_from(value: NewSubscriber) -> Result<Self, Self::Error> {
         let name = SubscriberName::parse(value.name.unwrap_or_default())?;
         let email = SubscriberEmail::parse(value.email.unwrap_or_default())?;
         Ok(Subscriber { email, name })
