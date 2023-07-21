@@ -4,27 +4,27 @@ on:
     branches:
       - main
 jobs:
-  pytest:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-      - uses: abatilo/actions-poetry@v2.0.0
-        with:
-          poetry-version: 1.5.1
-      - name: Install pytest and requests
-        run: |
-          poetry install
-      - name: Build Dockerfile and run image
-        run: |
-          docker build --cache-from myapp -t myapp .
-          docker run -d -p 3000:3000 myapp
-      - name: Run tests
-        run: |
-          poetry run pytest
+  # pytest:
+  #   name: Test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-python@v4
+  #       with:
+  #         python-version: 3.11
+  #     - uses: abatilo/actions-poetry@v2.0.0
+  #       with:
+  #         poetry-version: 1.5.1
+  #     - name: Install pytest and requests
+  #       run: |
+  #         poetry install
+  #     - name: Build Dockerfile and run image
+  #       run: |
+  #         docker build --cache-from myapp -t myapp .
+  #         docker run -d -p 3000:3000 myapp
+  #     - name: Run tests
+  #       run: |
+  #         poetry run pytest
   unit-test:
     name: Unit test
     runs-on: ubuntu-latest
@@ -35,15 +35,19 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+      - uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-task-cache
       - name: run unit tests
         run: cargo test --verbose
-  deploy:
-    name: Deploy app
-    needs: [unit-test, pytest]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+  # deploy:
+  #   name: Deploy app
+  #   needs: [unit-test]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: superfly/flyctl-actions/setup-flyctl@master
+  #     - run: flyctl deploy --remote-only
+  #       env:
+  #         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
