@@ -20,7 +20,7 @@ jobs:
             migration/target
           key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
       - name: set fly-postgres proxy
-        run: flyctl proxy 5432 -a marvinhsu-postgres ＆
+        run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
       - name: reset test database
         run: |
           cd migration
