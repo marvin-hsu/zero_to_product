@@ -25,74 +25,74 @@ jobs:
         run: |
           cd migration
           cargo run fresh -u ${{ secrets.DATABASE_POSTGRES }}
-  # build:
-  #   name: build project
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/cache@v3
-  #       with:
-  #         path: |
-  #           target
-  #         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-  #     - name: cargo build
-  #       run: cargo build --release
-  #     - name: build docker image
-  #       run: docker build -t zero_to_production .
-  #     - name: save docker image
-  #       run: docker save -o zero_to_production.tar zero_to_production
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: zero_to_production.tar
-  #         path: zero_to_production.tar
-  #         retention-days: 1
-  # unit-test: 
-  #   name: run unit tests
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/cache@v3
-  #       with:
-  #         path: |
-  #           target
-  #         key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}
-  #     - name: run test
-  #       run: cargo test --verbose
-  # pytest:
-  #   name: run intregation tests
-  #   needs: [build]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Install Poetry
-  #       uses: snok/install-poetry@v1
-  #     - uses: actions/cache@v3
-  #       with:
-  #         path: ~/.cache/pypoetry
-  #         key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
-  #     - name: Install pytest and requests
-  #       run: poetry install
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: zero_to_production.tar
-  #     - name: load docker image
-  #       run: docker load -i zero_to_production.tar
-  #     - name: Build Dockerfile and run image
-  #       run: docker run -d -p 3000:3000 zero_to_production
-  #     - name: Run tests
-  #       run: poetry run pytest
-  # deploy:
-  #   name: Deploy app
-  #   needs: [unit-test,pytest]
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: zero_to_production.tar
-  #     - uses: superfly/flyctl-actions/setup-flyctl@master
-  #     - name: load docker image
-  #       run: docker load -i zero_to_production.tar
-  #     - run: flyctl deploy --image zero_to_production
+  build:
+    name: build project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: cargo build
+        run: cargo build --release
+      - name: build docker image
+        run: docker build -t zero_to_production .
+      - name: save docker image
+        run: docker save -o zero_to_production.tar zero_to_production
+      - uses: actions/upload-artifact@v3
+        with:
+          name: zero_to_production.tar
+          path: zero_to_production.tar
+          retention-days: 1
+  unit-test: 
+    name: run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            target
+          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}
+      - name: run test
+        run: cargo test --verbose
+  pytest:
+    name: run intregation tests
+    needs: [build,prepare-test-db]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
+      - name: Install pytest and requests
+        run: poetry install
+      - uses: actions/download-artifact@v3
+        with:
+          name: zero_to_production.tar
+      - name: load docker image
+        run: docker load -i zero_to_production.tar
+      - name: Build Dockerfile and run image
+        run: docker run -d -p 3000:3000 zero_to_production
+      - name: Run tests
+        run: poetry run pytest
+  deploy:
+    name: Deploy app
+    needs: [unit-test,pytest]
+    runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: zero_to_production.tar
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: load docker image
+        run: docker load -i zero_to_production.tar
+      - run: flyctl deploy --image zero_to_production
