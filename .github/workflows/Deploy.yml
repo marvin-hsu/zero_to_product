@@ -28,7 +28,7 @@ jobs:
         with:
           path: |
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}
       - name: run test
         run: cargo test --verbose
   # pytest:
