@@ -17,7 +17,7 @@ jobs:
       - name: cargo build
         run: cargo build --release
       - name: build docker image
-        run: docker build
+        run: docker build -t zero_to_production
   unit-test: 
     name: run unit test
     needs: [build]
