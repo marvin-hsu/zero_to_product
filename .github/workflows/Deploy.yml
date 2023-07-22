@@ -26,7 +26,6 @@ jobs:
           path: zero_to_production.tar
   unit-test: 
     name: run unit test
-    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -37,46 +36,36 @@ jobs:
           key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}
       - name: run test
         run: cargo test --verbose
-  # pytest:
-  #   name: Test
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-python@v4
-  #       with:
-  #         python-version: 3.11
-  #     - uses: abatilo/actions-poetry@v2.0.0
-  #       with:
-  #         poetry-version: 1.5.1
-  #     - name: Install pytest and requests
-  #       run: |
-  #         poetry install
-  #     - name: Build Dockerfile and run image
-  #       run: |
-  #         docker build --cache-from myapp -t myapp .
-  #         docker run -d -p 3000:3000 myapp
-  #     - name: Run tests
-  #       run: |
-  #         poetry run pytest
-  # unit-test:
-  #   name: Unit test
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Install Rust
-  #       uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #     - uses: actions/cache@v3
-  #       with:
-  #         path: target
-  #         key: ${{ runner.os }}-cargo-task-cache
-  #     - name: run unit tests
-  #       run: cargo test --verbose
+  pytest:
+    name: Test
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.5.1
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
+      - name: Install pytest and requests
+        run: poetry install
+      # - uses: actions/download-artifact@v3
+      #   with:
+      #     name: zero_to_production.tar
+      # - name: load docker image
+      #   run: docker load -i zero_to_production.tar
+      # - name: Build Dockerfile and run image
+      #   run: docker run -d -p 3000:3000 zero_to_production
+      # - name: Run tests
+      #   run: poetry run pytest
   deploy:
     name: Deploy app
-    needs: [unit-test]
+    needs: [unit-test,pytest]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
