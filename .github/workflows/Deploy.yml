@@ -58,8 +58,8 @@ jobs:
         run: docker load -i zero_to_production.tar
       - name: Build Dockerfile and run image
         run: docker run -d -p 3000:3000 zero_to_production
-      # - name: Run tests
-      #   run: poetry run pytest
+      - name: Run tests
+        run: poetry run pytest
   deploy:
     name: Deploy app
     needs: [unit-test,pytest]
