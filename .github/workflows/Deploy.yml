@@ -13,11 +13,24 @@ jobs:
         with:
           path: |
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: cargo build
         run: cargo build --release
-      - name: check build result
-        run: tree
+      - name: build docker image
+        run: docker build
+  unit-test: 
+    name: run unit test
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: run test
+        run: cargo test --verbose
   # pytest:
   #   name: Test
   #   runs-on: ubuntu-latest
