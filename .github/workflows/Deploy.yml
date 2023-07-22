@@ -24,8 +24,7 @@ jobs:
       - name: reset test database
         run: |
           cd migration
-          cargo build
-  #        cargo run fresh -u "postgres://postgres:＄{{ secrets.DATABASE_PASSWORD }}@localhost:5432/postgres"
+          cargo run fresh -u ${{ secrets.DATABASE_POSTGRES }}
   # build:
   #   name: build project
   #   runs-on: ubuntu-latest
