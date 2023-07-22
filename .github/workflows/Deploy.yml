@@ -24,6 +24,7 @@ jobs:
         with:
           name: zero_to_production.tar
           path: zero_to_production.tar
+          retention-days: 1
   unit-test: 
     name: run unit test
     runs-on: ubuntu-latest
