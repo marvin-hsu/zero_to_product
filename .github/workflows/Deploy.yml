@@ -13,8 +13,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: actions/cache@v3
+        with:
+          path: |
+            migration/target
+          key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
       - name: set fly-postgres proxy
-        run: fly proxy 5432 -a marvinhsu-postgres
+        run: flyctl proxy 5432 -a marvinhsu-postgres
       - name: reset test database
         run: |
           cd migration
