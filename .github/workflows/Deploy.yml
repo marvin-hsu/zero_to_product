@@ -4,25 +4,25 @@ on:
     branches:
       - main
 jobs:
-  prepare-test-db:
-    name: prepare test database
-    runs-on: ubuntu-latest
-    env:
-      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - uses: actions/cache@v3
-        with:
-          path: |
-            migration/target
-          key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
-      - name: set fly-postgres proxy
-        run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
-      - name: reset test database
-        run: |
-          cd migration
-          cargo run fresh -u ${{ secrets.DATABASE_POSTGRES }}
+  # prepare-test-db:
+  #   name: prepare test database
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: superfly/flyctl-actions/setup-flyctl@master
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           migration/target
+  #         key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
+  #     - name: set fly-postgres proxy
+  #       run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
+  #     - name: reset test database
+  #       run: |
+  #         cd migration
+  #         cargo run fresh -u ${{ secrets.DATABASE_POSTGRES }}
   build:
     name: build project
     runs-on: ubuntu-latest
@@ -86,7 +86,7 @@ jobs:
   #       run: poetry run pytest
   deploy:
     name: Deploy app
-    needs: [unit-test,pytest]
+    needs: [unit-test]
     runs-on: ubuntu-latest
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
