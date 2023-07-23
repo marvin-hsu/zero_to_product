@@ -64,12 +64,6 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let mut builder = Config::builder()
         .add_source(File::from(configuration_directory.join("base")).required(true));
 
-    let envtest = config::Environment::with_prefix("app").separator("__");
-    let testconfg = Config::builder()
-    .add_source(envtest)
-    .build()?;
-    info!("{:?}",testconfg);
-
     builder = builder.add_source(config::Environment::with_prefix("app").separator("__"));
     
     let settings = builder.build()?;
