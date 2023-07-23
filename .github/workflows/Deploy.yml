@@ -60,6 +60,8 @@ jobs:
     name: run intregation tests
     needs: [build,prepare-test-db]
     runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
@@ -70,11 +72,14 @@ jobs:
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
       - name: Install pytest and requests
         run: poetry install
+      - uses: superfly/flyctl-actions/setup-flyctl@master
       - uses: actions/download-artifact@v3
         with:
           name: zero_to_production.tar
       - name: load docker image
         run: docker load -i zero_to_production.tar
+      - name: set fly-postgres proxy
+        run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
       - name: Build Dockerfile and run image
         run: docker run -d -p 3000:3000 -e APP_DATABASE__PASSWORD=${{ secrets.DATABASE_PASSWORD }} zero_to_production
       - name: Run tests
