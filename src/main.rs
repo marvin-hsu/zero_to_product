@@ -1,5 +1,6 @@
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 use tracing::log::info;
+use std::env;
 use zero_to_production::*;
 
 #[tokio::main]
