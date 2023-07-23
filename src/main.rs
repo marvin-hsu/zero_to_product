@@ -15,7 +15,5 @@ async fn main() {
 
     let config = get_configuration().expect("Failed to read configuration");
 
-    info!("{:?}",config.database.host);
-
     Application::build(&config).await.unwrap().run().await;
 }

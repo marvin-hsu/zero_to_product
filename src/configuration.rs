@@ -2,6 +2,7 @@ use config::{Config, File};
 use secrecy::{ExposeSecret, Secret};
 use serde::Deserialize;
 use serde_aux::prelude::deserialize_number_from_string;
+use tracing::log::info;
 
 #[derive(Deserialize, Clone)]
 pub struct Settings {
@@ -62,6 +63,12 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
 
     let mut builder = Config::builder()
         .add_source(File::from(configuration_directory.join("base")).required(true));
+
+    let envtest = config::Environment::with_prefix("app").separator("__");
+    let testconfg = Config::builder()
+    .add_source(envtest)
+    .build()?;
+    info!("{:?}",testconfg);
 
     builder = builder.add_source(config::Environment::with_prefix("app").separator("__"));
     
