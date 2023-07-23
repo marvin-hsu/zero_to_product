@@ -4,10 +4,10 @@ use axum::{
 };
 use sea_orm::{Database, DatabaseConnection};
 use secrecy::ExposeSecret;
+use std::env;
 use tower_http::trace::TraceLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
-use std::env;
 
 use crate::{health_check, subscribe, ApiDoc, DatabaseSettings, Settings};
 
@@ -18,9 +18,7 @@ pub struct Application {
 
 impl Application {
     pub async fn build(config: &Settings) -> Result<Self, std::io::Error> {
-        let databas_url = env::var("DATABASE_URL").unwrap();
-        // let database = get_database(&config.database).await.unwrap();
-        let database = get_database(databas_url).await.unwrap();
+        let database = get_database(&config.database).await.unwrap();
 
         let router = Router::new()
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
@@ -48,7 +46,9 @@ impl Application {
 pub async fn get_database(
     settings: &DatabaseSettings,
 ) -> Result<DatabaseConnection, sea_orm::DbErr> {
-    Database::connect(settings.connection_string().expose_secret()).await
+    let databas_url = env::var("DATABASE_URL").unwrap();
+    // Database::connect(settings.connection_string().expose_secret()).await
+    Database::connect(databas_url).await
 }
 
 #[derive(Clone, Debug)]

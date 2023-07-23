@@ -1,5 +1,3 @@
-use std::env;
-use tracing::log::info;
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 use zero_to_production::*;
 
