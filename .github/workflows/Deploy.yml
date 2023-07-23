@@ -86,7 +86,7 @@ jobs:
   #       run: poetry run pytest
   deploy:
     name: Deploy app
-    needs: [unit-test]
+    needs: [unit-test,build]
     runs-on: ubuntu-latest
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
