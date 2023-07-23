@@ -1,4 +1,5 @@
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
+use tracing::log::info;
 use zero_to_production::*;
 
 #[tokio::main]
@@ -13,6 +14,8 @@ async fn main() {
         .init();
 
     let config = get_configuration().expect("Failed to read configuration");
+
+    info!("{:?}",config.database.host);
 
     Application::build(&config).await.unwrap().run().await;
 }
