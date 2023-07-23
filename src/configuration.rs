@@ -10,10 +10,10 @@ pub struct Settings {
     // pub email_client: EmailClientSettings,
 }
 
-pub enum Environment {
-    Local,
-    Production,
-}
+// pub enum Environment {
+//     Local,
+//     Production,
+// }
 
 #[derive(Deserialize, Clone)]
 pub struct DatabaseSettings {
@@ -60,9 +60,12 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let base_path = std::env::current_dir().expect("Failed to determine the current directory");
     let configuration_directory = base_path.join("configuration");
 
-    let settings = Config::builder()
-        .add_source(File::from(configuration_directory.join("base")).required(true))
-        .build()?;
+    let mut builder = Config::builder()
+        .add_source(File::from(configuration_directory.join("base")).required(true));
+
+    builder = builder.add_source(config::Environment::with_prefix("app").separator("__"));
+    
+    let settings = builder.build()?;
 
     settings.try_deserialize::<Settings>()
 }

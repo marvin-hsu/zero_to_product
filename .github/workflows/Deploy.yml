@@ -3,8 +3,6 @@ on:
   push:
     branches:
       - main
-env:
-  DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
 jobs:
   prepare-test-db:
     name: prepare test database
@@ -78,7 +76,7 @@ jobs:
       - name: load docker image
         run: docker load -i zero_to_production.tar
       - name: Build Dockerfile and run image
-        run: docker run -d -p 3000:3000 zero_to_production
+        run: docker run -d -p 3000:3000 -e APP_DATABASE__PASSWORD=${{ secrets.DATABASE_PASSWORD }} zero_to_production
       - name: Run tests
         run: poetry run pytest
   deploy:
