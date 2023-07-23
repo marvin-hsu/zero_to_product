@@ -7,6 +7,7 @@ use secrecy::ExposeSecret;
 use tower_http::trace::TraceLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
+use std::env;
 
 use crate::{health_check, subscribe, ApiDoc, DatabaseSettings, Settings};
 
