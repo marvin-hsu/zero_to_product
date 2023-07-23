@@ -14,11 +14,6 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer().json())
         .init();
 
-    let my_variable = env::var("APP_DATABASE__HOST").unwrap();
-    let my_variable2 = env::var("SECRETTEST").unwrap();
-    info!("{:?}", my_variable);
-    info!("{:?}", my_variable2);
-
     let config = get_configuration().expect("Failed to read configuration");
 
     Application::build(&config).await.unwrap().run().await;

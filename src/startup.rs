@@ -17,7 +17,9 @@ pub struct Application {
 
 impl Application {
     pub async fn build(config: &Settings) -> Result<Self, std::io::Error> {
-        let database = get_database(&config.database).await.unwrap();
+        let databas_url = env::var("DATABASE_URL").unwrap();
+        // let database = get_database(&config.database).await.unwrap();
+        let database = get_database(databas_url).await.unwrap();
 
         let router = Router::new()
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
