@@ -98,4 +98,4 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: load docker image
         run: docker load -i zero_to_production.tar
-      - run: flyctl deploy --image zero_to_production --env APP_DATABASE__HOST="marvinhsu-postgres.internal"
+      - run: flyctl deploy --image zero_to_production
