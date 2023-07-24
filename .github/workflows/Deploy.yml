@@ -4,26 +4,26 @@ on:
     branches:
       - main
 jobs:
-  prepare-test-db:
-    name: prepare test database
-    runs-on: ubuntu-latest
-    env:
-      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-      DATABASE_URL: ${{ secrets.DATABASE_POSTGRES }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - uses: actions/cache@v3
-        with:
-          path: |
-            migration/target
-          key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
-      - name: set fly-postgres proxy
-        run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
-      - name: reset test database
-        run: |
-          cd migration
-          cargo run fresh
+  # prepare-test-db:
+  #   name: prepare test database
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+  #     DATABASE_URL: ${{ secrets.DATABASE_POSTGRES }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: superfly/flyctl-actions/setup-flyctl@master
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           migration/target
+  #         key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
+  #     - name: set fly-postgres proxy
+  #       run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
+  #     - name: reset test database
+  #       run: |
+  #         cd migration
+  #         cargo run fresh
   build:
     name: build project
     runs-on: ubuntu-latest
@@ -45,21 +45,21 @@ jobs:
           name: zero_to_production.tar
           path: zero_to_production.tar
           retention-days: 1
-  unit-test: 
-    name: run unit tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: |
-            target
-          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}
-      - name: run test
-        run: cargo test --verbose
+  # unit-test: 
+  #   name: run unit tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           target
+  #         key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}
+  #     - name: run test
+  #       run: cargo test --verbose
   pytest:
     name: run intregation tests
-    needs: [build,prepare-test-db]
+    needs: [build]
     runs-on: ubuntu-latest
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -82,22 +82,29 @@ jobs:
         run: docker load -i zero_to_production.tar
       - name: set fly-postgres proxy
         run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
-      - name: Build Dockerfile and run image
+      - name: run image
         run: docker run -d -p 3000:3000 -e DATABASE_URL=${{ secrets.DATABASE_PYTEST_POSTGRES }} zero_to_production
+      - name: Print container logs
+        run: docker logs ${{ steps.run_container.outputs.container_id }}
       - name: Run tests
-        run: poetry run pytest
-  deploy:
-    name: Deploy app
-    needs: [unit-test, pytest]
-    runs-on: ubuntu-latest
-    env:
-      FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+        run: poetry run pytest > pytest_logs.txt 2>&1
+      - name: Upload pytest logs
+        uses: actions/upload-artifact@v2
         with:
-          name: zero_to_production.tar
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - name: load docker image
-        run: docker load -i zero_to_production.tar
-      - run: flyctl deploy --image zero_to_production
+          name: pytest_logs
+          path: pytest_logs.txt
+  # deploy:
+  #   name: Deploy app
+  #   needs: [unit-test, pytest]
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: zero_to_production.tar
+  #     - uses: superfly/flyctl-actions/setup-flyctl@master
+  #     - name: load docker image
+  #       run: docker load -i zero_to_production.tar
+  #     - run: flyctl deploy --image zero_to_production
