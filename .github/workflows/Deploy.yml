@@ -23,7 +23,7 @@ jobs:
       - name: reset test database
         run: |
           cd migration
-          cargo run fresh -u
+          cargo run fresh
   build:
     name: build project
     runs-on: ubuntu-latest
