@@ -4,25 +4,26 @@ on:
     branches:
       - main
 jobs:
-  # prepare-test-db:
-  #   name: prepare test database
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: superfly/flyctl-actions/setup-flyctl@master
-  #     - uses: actions/cache@v3
-  #       with:
-  #         path: |
-  #           migration/target
-  #         key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
-  #     - name: set fly-postgres proxy
-  #       run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
-  #     - name: reset test database
-  #       run: |
-  #         cd migration
-  #         cargo run fresh -u ${{ secrets.DATABASE_POSTGRES }}
+  prepare-test-db:
+    name: prepare test database
+    runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      DATABASE_URL: ${{ secrets.DATABASE_POSTGRES }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: actions/cache@v3
+        with:
+          path: |
+            migration/target
+          key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
+      - name: set fly-postgres proxy
+        run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
+      - name: reset test database
+        run: |
+          cd migration
+          cargo run fresh -u
   build:
     name: build project
     runs-on: ubuntu-latest
@@ -56,37 +57,38 @@ jobs:
           key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}
       - name: run test
         run: cargo test --verbose
-  # pytest:
-  #   name: run intregation tests
-  #   needs: [build,prepare-test-db]
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Install Poetry
-  #       uses: snok/install-poetry@v1
-  #     - uses: actions/cache@v3
-  #       with:
-  #         path: ~/.cache/pypoetry
-  #         key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
-  #     - name: Install pytest and requests
-  #       run: poetry install
-  #     - uses: superfly/flyctl-actions/setup-flyctl@master
-  #     - uses: actions/download-artifact@v3
-  #       with:
-  #         name: zero_to_production.tar
-  #     - name: load docker image
-  #       run: docker load -i zero_to_production.tar
-  #     - name: set fly-postgres proxy
-  #       run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
-  #     - name: Build Dockerfile and run image
-  #       run: docker run -d -p 3000:3000 -e APP_DATABASE__PASSWORD=${{ secrets.DATABASE_PASSWORD }} zero_to_production
-  #     - name: Run tests
-  #       run: poetry run pytest
+  pytest:
+    name: run intregation tests
+    needs: [build,prepare-test-db]
+    runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      DATABASE_URL: ${{ secrets.DATABASE_POSTGRES }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
+      - name: Install pytest and requests
+        run: poetry install
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: actions/download-artifact@v3
+        with:
+          name: zero_to_production.tar
+      - name: load docker image
+        run: docker load -i zero_to_production.tar
+      - name: set fly-postgres proxy
+        run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
+      - name: Build Dockerfile and run image
+        run: docker run -d -p 3000:3000 -e DATABASE_URL=${{ secrets.DATABASE_PYTEST_POSTGRES }} zero_to_production
+      - name: Run tests
+        run: poetry run pytest
   deploy:
     name: Deploy app
-    needs: [unit-test,build]
+    needs: [unit-test, pytest]
     runs-on: ubuntu-latest
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
