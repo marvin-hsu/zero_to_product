@@ -5,4 +5,4 @@ database:
   port: 5432
   username: "postgres"
   password: "postgres"
-  database_name: "postgres"
+  database_name: "marvinhsu_zero_to_production"
