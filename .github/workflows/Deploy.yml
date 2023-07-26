@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_POSTGRES_TOKEN }}
-      DATABASE_URL: ${{ secrets.DATABASE_POSTGRES }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - uses: actions/checkout@v3
       - name: Install Poetry
@@ -103,7 +103,7 @@ jobs:
       - name: set fly-postgres proxy
         run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
       - name: run image
-        run: docker run -d -p 3000:3000 -e DATABASE_URL=${{ secrets.DATABASE_PYTEST_POSTGRES }} zero_to_production
+        run: docker run -d -p 3000:3000 -e DATABASE_URL=${{ secrets.DATABASE_URL_INTERGRATION_TEST }} zero_to_production
       - name: Run tests
         run: poetry run pytest
   deploy:
