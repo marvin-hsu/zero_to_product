@@ -2,6 +2,7 @@ import pytest
 import requests
 import random
 import string
+import os
 from sqlalchemy import text, create_engine
 
 
@@ -15,7 +16,7 @@ def test_subscribe_returns_a_200_for_valid_form_data(host_name):
     )
     assert response.status_code == 200
 
-    connection_string = "postgresql://postgres:postgres@localhost:5432/marvinhsu_zero_to_production"
+    connection_string = os.environ.get('DATABASE_URL')
 
     engine = create_engine(connection_string)
     with engine.connect() as conn:
