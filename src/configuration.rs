@@ -93,7 +93,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
 impl DatabaseSettings {
     pub fn connection_string(&self) -> Secret<String> {
         Secret::new(format!(
-            "postgres://{}:{}@{}:{}/{}",
+            "postgres://{}:{}@{}:{}/{}?sslmode=disable",
             self.username,
             self.password.expose_secret(),
             self.host,
@@ -104,7 +104,7 @@ impl DatabaseSettings {
 
     pub fn connection_string_without_db(&self) -> Secret<String> {
         Secret::new(format!(
-            "postgres://{}:{}@{}:{}",
+            "postgres://{}:{}@{}:{}?sslmode=disable",
             self.username,
             self.password.expose_secret(),
             self.host,
