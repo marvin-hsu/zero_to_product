@@ -4,7 +4,6 @@ use axum::{
 };
 use sea_orm::{Database, DatabaseConnection};
 use secrecy::ExposeSecret;
-use std::env;
 use tower_http::trace::TraceLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -46,9 +45,7 @@ impl Application {
 pub async fn get_database(
     settings: &DatabaseSettings,
 ) -> Result<DatabaseConnection, sea_orm::DbErr> {
-    let databas_url = env::var("DATABASE_URL").unwrap();
-    // Database::connect(settings.connection_string().expose_secret()).await
-    Database::connect(databas_url).await
+    Database::connect(settings.connection_string().expose_secret()).await
 }
 
 #[derive(Clone, Debug)]
