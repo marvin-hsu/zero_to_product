@@ -103,7 +103,7 @@ jobs:
       - name: set fly-postgres proxy
         run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
       - name: run image
-        run: docker run -d -p 3000:3000 --network host -e APP_DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD_INTERGRATION_TEST }} zero_to_production
+        run: docker run -d -p 3000:3000 --network host -e APP_ENVIRONMENT=test -e APP_DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD_INTERGRATION_TEST }} zero_to_production
       - name: Run tests
         run: poetry run pytest
   deploy:
