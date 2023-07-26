@@ -17,7 +17,7 @@ primary_region = "nrt"
   APP_ENVIRONMENT = "production"
 
 [checks]
-  [checks.name_of_your_http_check]
+  [checks.http_check]
     grace_period = "30s"
     interval = "15s"
     method = "get"
@@ -25,10 +25,3 @@ primary_region = "nrt"
     port = 3000
     timeout = "10s"
     type = "http"
-
-  [checks.name_of_your_tcp_check]
-    grace_period = "30s"
-    interval = "15s"
-    port = 1234
-    timeout = "10s"
-    type = "tcp"
