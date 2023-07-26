@@ -14,4 +14,4 @@ primary_region = "nrt"
   min_machines_running = 0
 
 [env]
-  APP_DATABASE__HOST = "marvinhsu-postgres.internal"
+  APP_ENVIRONMENT = "production"
