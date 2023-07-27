@@ -3,7 +3,7 @@ import requests
 import random
 import string
 import os
-# from sqlalchemy import text, create_engine
+from sqlalchemy import text, create_engine
 
 
 def test_subscribe_returns_a_200_for_valid_form_data(host_name):
@@ -16,14 +16,14 @@ def test_subscribe_returns_a_200_for_valid_form_data(host_name):
     )
     assert response.status_code == 200
 
-    # connection_string = os.environ.get('DATABASE_URL')
+    connection_string = os.environ.get('DATABASE_URL')
 
-    # engine = create_engine(connection_string)
-    # with engine.connect() as conn:
-    #     result = conn.execute(text("SELECT * FROM subscriptions WHERE email = :email"), {"email": f"{username}@gmail.com"})
-    #     assert result.fetchone() is not None
+    engine = create_engine(connection_string)
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT * FROM subscriptions WHERE email = :email"), {"email": f"{username}@gmail.com"})
+        assert result.fetchone() is not None
 
-    # engine.dispose()
+    engine.dispose()
 
 
 @pytest.mark.parametrize(
