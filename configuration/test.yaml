@@ -1,5 +1,5 @@
 database:
-  host: "localhost"
+  host: "host.docker.internal"
   port: 5432
   username: "intergration_test"
   database_name: "intergration_test"
