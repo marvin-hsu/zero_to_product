@@ -4,72 +4,72 @@ on:
     branches:
       - main
 jobs:
-  prepare-db:
-    name: prepare database
+  # prepare-db:
+  #   name: prepare database
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       db-type: [test,production]
+  #   env:
+  #     FLY_API_TOKEN: ${{ secrets.FLY_POSTGRES_TOKEN }}
+  #     DATABASE_URL: ${{ matrix.db-type == 'test' && secrets.DATABASE_URL_INTERGRATION_TEST || matrix.db-type == 'production' && secrets.DATABASE_URL }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: superfly/flyctl-actions/setup-flyctl@master
+  #     - uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           migration/target    
+  #         key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
+  #     - name: set fly-postgres proxy
+  #       run: nohup flyctl proxy 5432 -a marvinhsu-postgres &    
+  #     - run: cd migration
+  #     - name: migration test database
+  #       if : ${{ matrix.db-type == 'test' }}
+  #       run: cargo run fresh
+  #     - name: migration production database
+  #       if : ${{ matrix.db-type == 'production' }}
+  #       run: cargo run up    
+  prepare-test-db:
+    name: prepare test database
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        db-type: [test,production]
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_POSTGRES_TOKEN }}
-      DATABASE_URL: ${{ matrix.db-type == 'test' && secrets.DATABASE_URL_INTERGRATION_TEST || matrix.db-type == 'production' && secrets.DATABASE_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL_INTERGRATION_TEST }}
     steps:
       - uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - uses: actions/cache@v3
         with:
           path: |
-            migration/target    
+            migration/target
           key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
       - name: set fly-postgres proxy
-        run: nohup flyctl proxy 5432 -a marvinhsu-postgres &    
-      - run: cd migration
-      - name: migration test database
-        if : ${{ matrix.db-type == 'test' }}
-        run: cargo run fresh
-      - name: migration production database
-        if : ${{ matrix.db-type == 'production' }}
-        run: cargo run up    
-  # prepare-test-db:
-  #   name: prepare test database
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     FLY_API_TOKEN: ${{ secrets.FLY_POSTGRES_TOKEN }}
-  #     DATABASE_URL: ${{ secrets.DATABASE_URL_INTERGRATION_TEST }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: superfly/flyctl-actions/setup-flyctl@master
-  #     - uses: actions/cache@v3
-  #       with:
-  #         path: |
-  #           migration/target
-  #         key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
-  #     - name: set fly-postgres proxy
-  #       run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
-  #     - name: reset test database
-  #       run: |
-  #         cd migration
-  #         cargo run fresh
-  # prepare-db:
-  #   name: prepare database
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     FLY_API_TOKEN: ${{ secrets.FLY_POSTGRES_TOKEN }}
-  #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: superfly/flyctl-actions/setup-flyctl@master
-  #     - uses: actions/cache@v3
-  #       with:
-  #         path: |
-  #           migration/target
-  #         key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
-  #     - name: set fly-postgres proxy
-  #       run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
-  #     - name: migration database
-  #       run: |
-  #         cd migration
-          # cargo run up
+        run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
+      - name: reset test database
+        run: |
+          cd migration
+          cargo run fresh
+  prepare-db:
+    name: prepare database
+    runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_POSTGRES_TOKEN }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: actions/cache@v3
+        with:
+          path: |
+            migration/target
+          key: ${{ runner.os }}-sea-orm-migration-${{ hashFiles('**migration/Cargo.lock') }}
+      - name: set fly-postgres proxy
+        run: nohup flyctl proxy 5432 -a marvinhsu-postgres &
+      - name: migration database
+        run: |
+          cd migration
+          cargo run up
   build:
     name: build project
     runs-on: ubuntu-latest
@@ -105,7 +105,7 @@ jobs:
         run: cargo test --verbose
   pytest:
     name: run intregation tests
-    needs: [build,prepare-db]
+    needs: [build,prepare-test-db]
     runs-on: ubuntu-latest
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_POSTGRES_TOKEN }}
