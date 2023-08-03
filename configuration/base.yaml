@@ -10,3 +10,8 @@ database:
   username: "postgres"
   password: "postgres"
   database_name: "marvinhsu_zero_to_production"
+email_client:
+  base_url: "localhost"
+  sender_email: "test@gmail.com"
+  bear_token: "my-secret-token"
+  timeout_milliseconds: 10000

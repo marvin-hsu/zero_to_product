@@ -7,7 +7,7 @@ use serde_aux::prelude::deserialize_number_from_string;
 pub struct Settings {
     pub database: DatabaseSettings,
     pub application: ApplicationSettings,
-    // pub email_client: EmailClientSettings,
+    pub email_client: EmailClientSettings,
 }
 
 pub enum Environment {
@@ -35,14 +35,14 @@ pub struct ApplicationSettings {
     pub logging_levels: Vec<String>,
 }
 
-// #[derive(Deserialize, Clone)]
-// pub struct EmailClientSettings {
-//     pub base_url: String,
-//     pub sender_email: String,
-//     pub bear_token: Secret<String>,
-//     #[serde(deserialize_with = "deserialize_number_from_string")]
-//     pub timeout_milliseconds: u64,
-// }
+#[derive(Deserialize, Clone, Debug)]
+pub struct EmailClientSettings {
+    pub base_url: String,
+    pub sender_email: String,
+    pub bear_token: Secret<String>,
+    #[serde(deserialize_with = "deserialize_number_from_string")]
+    pub timeout_milliseconds: u64,
+}
 
 impl Environment {
     pub fn as_str(&self) -> &'static str {
