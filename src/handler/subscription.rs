@@ -37,6 +37,7 @@ pub async fn subscribe(state: State<AppState>, Form(data): Form<NewSubscriber>) 
             email: Set(subscriber.email.as_ref().to_owned()),
             name: Set(subscriber.name.as_ref().to_owned()),
             subscribed_at: Set(chrono::Utc::now().into()),
+            ..Default::default()
         }
         .insert(&state.database)
         .await;
