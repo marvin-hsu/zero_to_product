@@ -87,7 +87,6 @@ jobs:
           docker run \
           -e APP_ENVIRONMENT=test \
           -e APP_DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD_INTERGRATION_TEST }} \
-          -p 3000:3000 \
           --network host \
           -d zero_to_production
       - name: Run tests
