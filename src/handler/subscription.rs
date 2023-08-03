@@ -42,9 +42,9 @@ pub async fn subscribe(state: State<AppState>, Form(data): Form<NewSubscriber>) 
         .await;
 
         if result.is_ok() {
-            return StatusCode::OK;
+            StatusCode::OK
         } else {
-            return StatusCode::BAD_REQUEST;
+            StatusCode::BAD_REQUEST
         }
     } else {
         StatusCode::BAD_REQUEST
