@@ -2,6 +2,7 @@ use config::{Config, File};
 use secrecy::{ExposeSecret, Secret};
 use serde::Deserialize;
 use serde_aux::prelude::deserialize_number_from_string;
+use crate::SubscriberEmail;
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct Settings {
@@ -111,5 +112,15 @@ impl DatabaseSettings {
             self.host,
             self.port
         ))
+    }
+}
+
+impl EmailClientSettings {
+    pub fn sender(&self) -> Result<SubscriberEmail, String> {
+        SubscriberEmail::parse(self.sender_email.clone())
+    }
+
+    pub fn timeout(&self) -> std::time::Duration {
+        std::time::Duration::from_millis(self.timeout_milliseconds)
     }
 }

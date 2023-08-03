@@ -17,3 +17,19 @@ The following table shows the differences between the book and this repository:
 | DB tool          | sqlx          | seaORM              |
 | Integration test | rust build-in | pytest              |
 | CI Accelerate    | Cargo-chief   | Github-action cache |
+
+## SeaOEM migration  
+
+1. Install sea-orm cli if haven't done  
+    ```bash
+    cargo install sea-orm-cli
+    ```
+2. Set up database connection string in `.env` file
+3. Use `up` command to apply all pending migrations
+    ```bash
+    sea-orm-cli migrate up
+    ```
+4. Use `generate` command to generate model and entity files
+    ```bash
+    sea-orm-cli migrate generate NAME_OF_MIGRATION
+   ```

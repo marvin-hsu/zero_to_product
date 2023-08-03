@@ -8,7 +8,7 @@ use tower_http::trace::TraceLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::{health_check, subscribe, ApiDoc, DatabaseSettings, Settings};
+use crate::{health_check, subscribe, ApiDoc, DatabaseSettings, Settings, EmailClientSettings, EmailClient};
 
 pub struct Application {
     port: u16,
@@ -18,6 +18,7 @@ pub struct Application {
 impl Application {
     pub async fn build(config: &Settings) -> Result<Self, std::io::Error> {
         let database = get_database(&config.database).await.unwrap();
+        let email_client = get_email_client(&config.email_client);
 
         let router = Router::new()
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
@@ -46,6 +47,21 @@ pub async fn get_database(
     settings: &DatabaseSettings,
 ) -> Result<DatabaseConnection, sea_orm::DbErr> {
     Database::connect(settings.connection_string().expose_secret()).await
+}
+
+
+fn get_email_client(setting: &EmailClientSettings) -> EmailClient {
+    let sender_email = setting
+        .sender()
+        .expect("Invalid sender email address.");
+    let timeout = setting.timeout();
+
+    EmailClient::new(
+        setting.base_url.clone(),
+        sender_email,
+        setting.bear_token.clone(),
+        timeout,
+    )
 }
 
 #[derive(Clone, Debug)]
