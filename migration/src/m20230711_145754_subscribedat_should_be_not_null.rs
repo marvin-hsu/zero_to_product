@@ -1,3 +1,4 @@
+use crate::tables::Subscriptions;
 use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
@@ -26,10 +27,4 @@ impl MigrationTrait for Migration {
             )
             .await
     }
-}
-
-#[derive(Iden)]
-enum Subscriptions {
-    Table,
-    SubscribedAt,
 }

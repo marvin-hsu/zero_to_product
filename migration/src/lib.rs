@@ -2,6 +2,8 @@ pub use sea_orm_migration::prelude::*;
 
 mod m20230711_142423_create_table;
 mod m20230711_145754_subscribedat_should_be_not_null;
+mod m20230803_125354_add_status_column_to_subscriptions_table;
+mod tables;
 
 pub struct Migrator;
 
@@ -11,6 +13,7 @@ impl MigratorTrait for Migrator {
         vec![
             Box::new(m20230711_142423_create_table::Migration),
             Box::new(m20230711_145754_subscribedat_should_be_not_null::Migration),
+            Box::new(m20230803_125354_add_status_column_to_subscriptions_table::Migration),
         ]
     }
 }
