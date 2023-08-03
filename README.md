@@ -33,3 +33,7 @@ The following table shows the differences between the book and this repository:
     ```bash
     sea-orm-cli migrate generate NAME_OF_MIGRATION
    ```
+5. Generate entities from database
+    ```bash
+    sea-orm-cli generate entity -o src/entity
+    ```
