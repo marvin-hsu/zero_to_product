@@ -6,5 +6,5 @@ database:
   username: "marvinhsu_zero_to_production"
   database_name: "marvinhsu_zero_to_production"
 email_client:
-  base_url: "https://api.sendgrid.com/"
+  base_url: "https://api.smtp2go.com/"
   sender_email: "n26064074@gs.ncku.edu.tw"

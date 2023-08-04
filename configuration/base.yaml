@@ -12,7 +12,7 @@ database:
   password: "postgres"
   database_name: "marvinhsu_zero_to_production"
 email_client:
-  base_url: "https://api.sendgrid.com/"
+  base_url: "https://api.smtp2go.com/"
   sender_email: "n26064074@gs.ncku.edu.tw"
-  bear_token: "SG.3oh2oCojQZ2gaOAZ8eE4uA.uiWBXYEjgyPdZ5umz6NUPCCqYOBShM9FPJvfCbCtest"
+  api_key: "test_key"
   timeout_milliseconds: 10000

@@ -1,11 +1,12 @@
 use crate::SubscriberEmail;
 use reqwest::Client;
 use secrecy::{ExposeSecret, Secret};
+use serde::Serialize;
 
 #[derive(Debug, Clone)]
 pub struct EmailClient {
     http_client: Client,
-    base_url: String,
+    api_key: String,
     sender: SubscriberEmail,
     bear_token: Secret<String>,
 }
@@ -21,7 +22,7 @@ impl EmailClient {
 
         Self {
             http_client,
-            base_url,
+            api_key: base_url,
             sender,
             bear_token,
         }
@@ -31,28 +32,18 @@ impl EmailClient {
         &self,
         recipient: &SubscriberEmail,
         subject: &str,
-        content_type: &str,
         content: &str,
     ) -> Result<(), reqwest::Error> {
-        let url = format!("{}/v3/mail/send", self.base_url);
+        let url = format!("{}v3/email/send", self.api_key);
         let request_body = SendEmailRequest {
-            from: Email {
-                email: self.sender.as_ref(),
-            },
-            personalizations: vec![Personalization {
-                to: vec![Email {
-                    email: recipient.as_ref(),
-                }],
-                subject,
-            }],
-            content: vec![Content {
-                type_field: content_type,
-                value: content,
-            }],
+            api_key: self.bear_token.expose_secret().clone(),
+            to: vec![recipient.as_ref().to_string()],
+            sender: self.sender.as_ref().to_string(),
+            subject: subject.to_string(),
+            text_body: content.to_string(),
         };
         self.http_client
             .post(&url)
-            .bearer_auth(self.bear_token.expose_secret())
             .json(&request_body)
             .send()
             .await?
@@ -61,29 +52,13 @@ impl EmailClient {
     }
 }
 
-#[derive(serde::Serialize)]
-pub struct SendEmailRequest<'a> {
-    pub personalizations: Vec<Personalization<'a>>,
-    pub content: Vec<Content<'a>>,
-    pub from: Email<'a>,
-}
-
-#[derive(serde::Serialize)]
-pub struct Personalization<'a> {
-    pub to: Vec<Email<'a>>,
-    pub subject: &'a str,
-}
-
-#[derive(serde::Serialize)]
-pub struct Email<'a> {
-    pub email: &'a str,
-}
-
-#[derive(serde::Serialize)]
-pub struct Content<'a> {
-    #[serde(rename = "type")]
-    pub type_field: &'a str,
-    pub value: &'a str,
+#[derive(Serialize, Debug)]
+pub struct SendEmailRequest {
+    pub api_key: String,
+    pub to: Vec<String>,
+    pub sender: String,
+    pub subject: String,
+    pub text_body: String,
 }
 
 #[cfg(test)]
@@ -116,7 +91,7 @@ mod tests {
 
         // Act
         let outcome = email_client
-            .send_email(&email(), &subject(), &content_type(), &content())
+            .send_email(&email(), &subject(), &content())
             .await;
 
         // Assert
@@ -138,7 +113,7 @@ mod tests {
 
         // Act
         let outcome = email_client
-            .send_email(&email(), &subject(), &content_type(), &content())
+            .send_email(&email(), &subject(), &content())
             .await;
 
         // Assert
@@ -161,7 +136,7 @@ mod tests {
 
         // Act
         let outcome = email_client
-            .send_email(&email(), &subject(), &content_type(), &content())
+            .send_email(&email(), &subject(), &content())
             .await;
 
         // Assert

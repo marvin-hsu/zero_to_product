@@ -53,7 +53,7 @@ pub async fn subscribe(state: State<AppState>, Form(data): Form<NewSubscriber>) 
 
             if let Ok(subscription_token) = subscription_token_result {
                 let confirmation_link = format!(
-                    "{}/subscriptions/confirm?subscription_token={}",
+                    "{}subscriptions/confirm?subscription_token={}",
                     &state.base_url, subscription_token.subscription_token
                 );
 
@@ -64,7 +64,7 @@ pub async fn subscribe(state: State<AppState>, Form(data): Form<NewSubscriber>) 
                 );
                 let send_result = &state
                     .email_client
-                    .send_email(&subscriber.email, "Welcome!", "text/html", &html_body)
+                    .send_email(&subscriber.email, "Welcome!", &html_body)
                     .await;
 
                 if send_result.is_ok() {
