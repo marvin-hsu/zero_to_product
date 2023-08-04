@@ -1,8 +1,8 @@
+use crate::SubscriberEmail;
 use config::{Config, File};
 use secrecy::{ExposeSecret, Secret};
 use serde::Deserialize;
 use serde_aux::prelude::deserialize_number_from_string;
-use crate::SubscriberEmail;
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct Settings {
@@ -32,7 +32,7 @@ pub struct ApplicationSettings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
     // pub host: String,
-    // pub base_url: String,
+    pub base_url: String,
     pub logging_levels: Vec<String>,
 }
 
@@ -85,7 +85,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
         .add_source(
             config::Environment::with_prefix("APP")
                 .try_parsing(true)
-                .separator("_"),
+                .separator("__"),
         )
         .build()?;
 

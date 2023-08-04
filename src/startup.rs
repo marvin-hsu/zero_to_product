@@ -8,7 +8,9 @@ use tower_http::trace::TraceLayer;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::{health_check, subscribe, ApiDoc, DatabaseSettings, Settings, EmailClientSettings, EmailClient};
+use crate::{
+    health_check, subscribe, ApiDoc, DatabaseSettings, EmailClient, EmailClientSettings, Settings,
+};
 
 pub struct Application {
     port: u16,
@@ -25,7 +27,11 @@ impl Application {
             .route("/health_check", get(health_check))
             .route("/subscriptions", post(subscribe))
             .layer(TraceLayer::new_for_http())
-            .with_state(AppState { database });
+            .with_state(AppState {
+                database,
+                base_url: config.application.base_url.clone(),
+                email_client
+            });
 
         Ok(Self {
             port: config.application.port,
@@ -49,11 +55,8 @@ pub async fn get_database(
     Database::connect(settings.connection_string().expose_secret()).await
 }
 
-
 fn get_email_client(setting: &EmailClientSettings) -> EmailClient {
-    let sender_email = setting
-        .sender()
-        .expect("Invalid sender email address.");
+    let sender_email = setting.sender().expect("Invalid sender email address.");
     let timeout = setting.timeout();
 
     EmailClient::new(
@@ -67,4 +70,6 @@ fn get_email_client(setting: &EmailClientSettings) -> EmailClient {
 #[derive(Clone, Debug)]
 pub struct AppState {
     pub database: DatabaseConnection,
+    pub email_client: EmailClient,
+    pub base_url: String,
 }

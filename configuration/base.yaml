@@ -1,5 +1,6 @@
 application:
   port: 3000
+  base_url: "http://localhost:3000/"
   logging_levels:
     - "zero_to_production=debug"
     - "tower_http=debug"
