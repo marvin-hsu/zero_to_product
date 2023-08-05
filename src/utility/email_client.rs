@@ -2,6 +2,7 @@ use crate::SubscriberEmail;
 use reqwest::Client;
 use secrecy::{ExposeSecret, Secret};
 use serde::Serialize;
+use tracing::info;
 use url::Url;
 
 #[derive(Debug, Clone)]
@@ -44,6 +45,9 @@ impl EmailClient {
             subject: subject.to_string(),
             text_body: content.to_string(),
         };
+
+        info!("SendUrl: {:?}", url);
+
         self.http_client
             .post(&url.to_string())
             .json(&request_body)
