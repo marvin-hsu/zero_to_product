@@ -62,7 +62,7 @@ fn get_email_client(setting: &EmailClientSettings) -> EmailClient {
     EmailClient::new(
         setting.base_url.clone(),
         sender_email,
-        setting.bear_token.clone(),
+        setting.api_key.clone(),
         timeout,
     )
 }
