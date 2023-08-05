@@ -14,7 +14,7 @@ primary_region = "nrt"
   min_machines_running = 0
 
 [env]
-  APP_ENVIRONMENT = "production"
+  APP__ENVIRONMENT = "production"
 
 [checks]
   [checks.http_check]

@@ -40,7 +40,7 @@ pub struct ApplicationSettings {
 pub struct EmailClientSettings {
     pub base_url: String,
     pub sender_email: String,
-    pub bear_token: Secret<String>,
+    pub api_key: Secret<String>,
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub timeout_milliseconds: u64,
 }
@@ -74,7 +74,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let base_path = std::env::current_dir().expect("Failed to determine the current directory");
     let configuration_directory = base_path.join("configuration");
 
-    let environment: Environment = std::env::var("APP_ENVIRONMENT")
+    let environment: Environment = std::env::var("APP__ENVIRONMENT")
         .unwrap_or_else(|_| "local".into())
         .try_into()
         .expect("Failed to parse APP_ENVIRONMENT.");

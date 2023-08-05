@@ -85,8 +85,8 @@ jobs:
       - name: run image
         run: |
           docker run \
-          -e APP_ENVIRONMENT=test \
-          -e APP_DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD_INTERGRATION_TEST }} \
+          -e APP__ENVIRONMENT=test \
+          -e APP__DATABASE__PASSWORD=${{ secrets.DATABASE_PASSWORD_INTERGRATION_TEST }} \
           --network host \
           -d zero_to_production
       - name: Run tests
