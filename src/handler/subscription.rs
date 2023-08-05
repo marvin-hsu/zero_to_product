@@ -52,10 +52,15 @@ pub async fn subscribe(state: State<AppState>, Form(data): Form<NewSubscriber>) 
             .await;
 
             if let Ok(subscription_token) = subscription_token_result {
-                let confirmation_link = format!(
-                    "{}subscriptions/confirm?subscription_token={}",
-                    &state.base_url, subscription_token.subscription_token
+                let confirmation_link_relative = format!(
+                    "/subscriptions/confirm?subscription_token={}",
+                    subscription_token.subscription_token
                 );
+                let confirmation_link = &state
+                    .base_url
+                    .clone()
+                    .join(&confirmation_link_relative)
+                    .unwrap();
 
                 let html_body = format!(
                     "Welcome to our newsletter!<br />\

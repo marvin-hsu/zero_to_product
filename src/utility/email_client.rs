@@ -2,29 +2,30 @@ use crate::SubscriberEmail;
 use reqwest::Client;
 use secrecy::{ExposeSecret, Secret};
 use serde::Serialize;
+use url::Url;
 
 #[derive(Debug, Clone)]
 pub struct EmailClient {
     http_client: Client,
-    api_key: String,
+    base_url: Url,
     sender: SubscriberEmail,
-    bear_token: Secret<String>,
+    api_key: Secret<String>,
 }
 
 impl EmailClient {
     pub fn new(
         base_url: String,
         sender: SubscriberEmail,
-        bear_token: Secret<String>,
+        api_key: Secret<String>,
         timeout: std::time::Duration,
     ) -> Self {
         let http_client = Client::builder().timeout(timeout).build().unwrap();
 
         Self {
             http_client,
-            api_key: base_url,
+            base_url: base_url.parse().unwrap(),
             sender,
-            bear_token,
+            api_key,
         }
     }
 
@@ -34,16 +35,17 @@ impl EmailClient {
         subject: &str,
         content: &str,
     ) -> Result<(), reqwest::Error> {
-        let url = format!("{}v3/email/send", self.api_key);
+        let url = self.base_url.join("/v3/email/send").unwrap();
+
         let request_body = SendEmailRequest {
-            api_key: self.bear_token.expose_secret().clone(),
+            api_key: self.api_key.expose_secret().clone(),
             to: vec![recipient.as_ref().to_string()],
             sender: self.sender.as_ref().to_string(),
             subject: subject.to_string(),
             text_body: content.to_string(),
         };
         self.http_client
-            .post(&url)
+            .post(&url.to_string())
             .json(&request_body)
             .send()
             .await?
@@ -69,20 +71,19 @@ mod tests {
     use fake::faker::lorem::en::{Paragraph, Sentence};
     use fake::Fake;
     use secrecy::Secret;
-    use wiremock::matchers::{any, bearer_token, header, method, path};
+    use wiremock::matchers::{any, header, method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
 
     #[tokio::test]
     async fn send_email_fires_a_request_to_base_url() {
         // Arrange
         let mock_server = MockServer::start().await;
-        let token = bear_token();
+        let token = api_key();
         let email_client = email_client(mock_server.uri(), token.clone());
 
-        Mock::given(bearer_token(token))
+        Mock::given(method("POST"))
             .and(header("Content-Type", "application/json"))
-            .and(path("/v3/mail/send"))
-            .and(method("POST"))
+            .and(path("/v3/email/send"))
             .and(SendEmailBodyMatcher)
             .respond_with(ResponseTemplate::new(200))
             .expect(1)
@@ -102,7 +103,7 @@ mod tests {
     async fn send_email_fails_if_the_server_returns_500() {
         // Arrange
         let mock_server = MockServer::start().await;
-        let token = bear_token();
+        let token = api_key();
         let email_client = email_client(mock_server.uri(), token.clone());
 
         Mock::given(any())
@@ -124,7 +125,7 @@ mod tests {
     async fn send_email_times_out_if_the_server_takes_too_long() {
         // Arrange
         let mock_server = MockServer::start().await;
-        let token = bear_token();
+        let token = api_key();
         let email_client = email_client(mock_server.uri(), token.clone());
 
         let response = ResponseTemplate::new(200).set_delay(std::time::Duration::from_secs(180));
@@ -147,10 +148,6 @@ mod tests {
         Sentence(1..2).fake()
     }
 
-    fn content_type() -> String {
-        Sentence(1..10).fake()
-    }
-
     fn content() -> String {
         Paragraph(1..10).fake()
     }
@@ -159,7 +156,7 @@ mod tests {
         SubscriberEmail::parse(SafeEmail().fake()).unwrap()
     }
 
-    fn bear_token() -> String {
+    fn api_key() -> String {
         Sentence(1..20).fake()
     }
 
@@ -177,23 +174,11 @@ mod tests {
             let result: Result<serde_json::Value, _> = serde_json::from_slice(&request.body);
 
             if let Ok(body) = result {
-                body.get("personalizations").unwrap().as_array().unwrap()[0]
-                    .get("to")
-                    .unwrap()
-                    .as_array()
-                    .unwrap()[0]
-                    .get("email")
-                    .is_some()
-                    && body.get("personalizations").unwrap().as_array().unwrap()[0]
-                        .get("subject")
-                        .is_some()
-                    && body.get("from").unwrap().get("email").is_some()
-                    && body.get("content").unwrap().as_array().unwrap()[0]
-                        .get("type")
-                        .is_some()
-                    && body.get("content").unwrap().as_array().unwrap()[0]
-                        .get("value")
-                        .is_some()
+                body.get("api_key").is_some()
+                    && body.get("sender").is_some()
+                    && body.get("subject").is_some()
+                    && body.get("text_body").is_some()
+                    && body.get("to").unwrap().as_array().unwrap().len() == 1
             } else {
                 false
             }

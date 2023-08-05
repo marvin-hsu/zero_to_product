@@ -5,6 +5,8 @@ use axum::{
 use sea_orm::{Database, DatabaseConnection};
 use secrecy::ExposeSecret;
 use tower_http::trace::TraceLayer;
+use tracing::info;
+use url::Url;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -29,8 +31,8 @@ impl Application {
             .layer(TraceLayer::new_for_http())
             .with_state(AppState {
                 database,
-                base_url: config.application.base_url.clone(),
-                email_client
+                base_url: config.application.base_url.clone().parse().unwrap(),
+                email_client,
             });
 
         Ok(Self {
@@ -71,5 +73,5 @@ fn get_email_client(setting: &EmailClientSettings) -> EmailClient {
 pub struct AppState {
     pub database: DatabaseConnection,
     pub email_client: EmailClient,
-    pub base_url: String,
+    pub base_url: Url,
 }

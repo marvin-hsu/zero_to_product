@@ -3525,6 +3525,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "unicode-segmentation",
+ "url",
  "utoipa",
  "utoipa-swagger-ui",
  "uuid",
