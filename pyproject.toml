@@ -12,6 +12,7 @@ pytest = "^7.4.0"
 requests = "^2.31.0"
 sqlalchemy = "^2.0.19"
 psycopg2 = "^2.9.6"
+flask = "^2.3.2"
 
 
 [build-system]

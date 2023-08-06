@@ -1,3 +1,6 @@
+import threading
+import time
+
 import pytest
 import requests
 import random
@@ -5,8 +8,10 @@ import string
 import os
 from sqlalchemy import text, create_engine
 
+from utility.email_mock_server import app
 
-def test_subscribe_returns_a_200_for_valid_form_data(host_name):
+
+def test_subscribe_returns_a_200_for_valid_form_data(host_name, email_server):
     username = generate_username(8)
 
     response = requests.post(
@@ -20,7 +25,8 @@ def test_subscribe_returns_a_200_for_valid_form_data(host_name):
 
     engine = create_engine(connection_string)
     with engine.connect() as conn:
-        result = conn.execute(text("SELECT * FROM subscriptions WHERE email = :email"), {"email": f"{username}@gmail.com"})
+        result = conn.execute(text("SELECT * FROM subscriptions WHERE email = :email"),
+                              {"email": f"{username}@gmail.com"})
         assert result.fetchone() is not None
 
     engine.dispose()
@@ -46,3 +52,27 @@ def test_subscribe_returns_a_400_when_data_is_missing(host_name, test_case):
 def generate_username(length):
     letters = string.ascii_lowercase
     return "".join(random.choice(letters) for i in range(length))
+
+
+def start_email_server():
+    app.run()
+
+
+def shutdown_email_server():
+    app.shutdown()
+
+
+@pytest.fixture(scope="module")
+def email_server():
+    server_thread = threading.Thread(target=start_email_server)
+    server_thread.start()
+    time.sleep(1)
+    response = requests.get('http://localhost:5000')
+
+    if response.status_code != 200:
+        pytest.fail("mock_email_start_fail")
+
+    yield
+
+    shutdown_email_server()
+    server_thread.join()
