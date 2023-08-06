@@ -58,13 +58,10 @@ def start_email_server():
     app.run()
 
 
-def shutdown_email_server():
-    app.shutdown()
-
-
 @pytest.fixture(scope="module")
 def email_server():
-    server_thread = threading.Thread(target=start_email_server)
+    stop_event = threading.Event()
+    server_thread = threading.Thread(target=start_email_server, args=(stop_event,))
     server_thread.start()
     time.sleep(1)
     response = requests.get('http://localhost:5000')
@@ -74,5 +71,5 @@ def email_server():
 
     yield
 
-    shutdown_email_server()
+    stop_event.set()
     server_thread.join()
