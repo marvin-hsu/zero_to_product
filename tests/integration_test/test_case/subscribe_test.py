@@ -29,7 +29,6 @@ def test_subscribe_returns_a_200_for_valid_form_data(host_name, email_server):
         assert result.fetchone() is not None
 
     engine.dispose()
-    assert True
 
 
 @pytest.mark.parametrize(
