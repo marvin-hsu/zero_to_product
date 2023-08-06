@@ -1,12 +1,11 @@
-import threading
 import time
-
 import pytest
 import requests
 import random
 import string
 import os
 from sqlalchemy import text, create_engine
+from multiprocessing import Process
 
 from utility.email_mock_server import app
 
@@ -30,6 +29,7 @@ def test_subscribe_returns_a_200_for_valid_form_data(host_name, email_server):
         assert result.fetchone() is not None
 
     engine.dispose()
+    assert True
 
 
 @pytest.mark.parametrize(
@@ -60,10 +60,10 @@ def start_email_server():
 
 @pytest.fixture(scope="module")
 def email_server():
-    stop_event = threading.Event()
-    server_thread = threading.Thread(target=start_email_server, args=(stop_event,))
-    server_thread.start()
+    process = Process(target=start_email_server)
+    process.start()
     time.sleep(1)
+
     response = requests.get('http://localhost:5000')
 
     if response.status_code != 200:
@@ -71,5 +71,5 @@ def email_server():
 
     yield
 
-    stop_event.set()
-    server_thread.join()
+    process.terminate()
+    process.join()
