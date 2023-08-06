@@ -5,7 +5,6 @@ use axum::{
 use sea_orm::{Database, DatabaseConnection};
 use secrecy::ExposeSecret;
 use tower_http::trace::TraceLayer;
-use tracing::info;
 use url::Url;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
