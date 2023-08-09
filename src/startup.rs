@@ -10,7 +10,8 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
-    health_check, subscribe, ApiDoc, DatabaseSettings, EmailClient, EmailClientSettings, Settings,
+    confirm, health_check, subscribe, ApiDoc, DatabaseSettings, EmailClient, EmailClientSettings,
+    Settings,
 };
 
 pub struct Application {
@@ -27,6 +28,7 @@ impl Application {
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
             .route("/health_check", get(health_check))
             .route("/subscriptions", post(subscribe))
+            .route("/subscriptions/confirm/:token", get(confirm))
             .layer(TraceLayer::new_for_http())
             .with_state(AppState {
                 database,

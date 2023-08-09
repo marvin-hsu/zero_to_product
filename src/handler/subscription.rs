@@ -1,6 +1,4 @@
-use crate::{
-    domain, domain::*, subscription_tokens, subscriptions, AppError, AppState, BadRequestError,
-};
+use crate::{domain::*, subscription_tokens, subscriptions, AppError, AppState, BadRequestError};
 
 use crate::subscription_tokens::Model;
 use axum::{

@@ -2,7 +2,6 @@ use crate::SubscriberEmail;
 use reqwest::Client;
 use secrecy::{ExposeSecret, Secret};
 use serde::Serialize;
-use tracing::info;
 use url::Url;
 
 #[derive(Debug, Clone)]

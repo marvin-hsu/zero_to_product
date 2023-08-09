@@ -8,6 +8,8 @@ pub enum AppError {
     BadRequestError(BadRequestError),
     DatabaseError(DbErr),
     EmailClientError(reqwest::Error),
+    CustomWarning(StatusCode, String),
+    CustomInternalError(String),
 }
 
 impl IntoResponse for AppError {
@@ -16,6 +18,10 @@ impl IntoResponse for AppError {
             AppError::BadRequestError(e) => {
                 warn!("BadRequestError:{:?}", e);
                 (StatusCode::BAD_REQUEST, e.0).into_response()
+            }
+            AppError::CustomWarning(status, e) => {
+                warn!("CustomError:{}", e);
+                (status, e).into_response()
             }
             _ => {
                 error!("AppError:{:?}", self);
@@ -48,7 +54,7 @@ impl From<reqwest::Error> for AppError {
 }
 
 #[derive(Debug)]
-pub struct BadRequestError(String);
+pub struct BadRequestError(pub String);
 
 impl From<String> for BadRequestError {
     fn from(error: String) -> Self {
