@@ -2,6 +2,7 @@ use crate::{
     domain, domain::*, subscription_tokens, subscriptions, AppError, AppState, BadRequestError,
 };
 
+use crate::subscription_tokens::Model;
 use axum::{
     extract::{Form, State},
     http::StatusCode,
@@ -11,7 +12,6 @@ use serde::Deserialize;
 use tracing::instrument;
 use utoipa::ToSchema;
 use uuid::Uuid;
-use crate::subscription_tokens::Model;
 
 #[derive(Deserialize, Debug, ToSchema)]
 pub struct NewSubscriber {

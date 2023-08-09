@@ -1,7 +1,7 @@
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use sea_orm::DbErr;
-use tracing::error;
+use tracing::{error, warn};
 
 #[derive(Debug)]
 pub enum AppError {
@@ -12,16 +12,19 @@ pub enum AppError {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-
-        error!("AppError:{:?}",self);
-
         match self {
-            AppError::BadRequestError(e) => (StatusCode::BAD_REQUEST, e.0).into_response(),
-            _ => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "An unexpected error occurred. Please try again later.".to_string(),
-            )
-                .into_response(),
+            AppError::BadRequestError(e) => {
+                warn!("BadRequestError:{:?}", e);
+                (StatusCode::BAD_REQUEST, e.0).into_response()
+            }
+            _ => {
+                error!("AppError:{:?}", self);
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "An unexpected error occurred. Please try again later.".to_string(),
+                )
+                    .into_response()
+            }
         }
     }
 }
