@@ -43,7 +43,7 @@ impl EmailClient {
             to: vec![recipient.as_ref().to_string()],
             sender: self.sender.as_ref().to_string(),
             subject: subject.to_string(),
-            text_body: content.to_string(),
+            html_body: content.to_string(),
         };
 
         self.http_client
@@ -62,7 +62,7 @@ pub struct SendEmailRequest {
     pub to: Vec<String>,
     pub sender: String,
     pub subject: String,
-    pub text_body: String,
+    pub html_body: String,
 }
 
 #[cfg(test)]
@@ -179,7 +179,7 @@ mod tests {
                 body.get("api_key").is_some()
                     && body.get("sender").is_some()
                     && body.get("subject").is_some()
-                    && body.get("text_body").is_some()
+                    && body.get("html_body").is_some()
                     && body.get("to").unwrap().as_array().unwrap().len() == 1
             } else {
                 false
