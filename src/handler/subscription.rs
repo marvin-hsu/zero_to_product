@@ -39,7 +39,7 @@ pub async fn subscribe(
 ) -> Result<StatusCode, AppError> {
     let new_subscriber = Subscriber::try_from(data)?;
 
-    let txn = &state.database.begin().await?;
+    let txn = state.database.begin().await?;
 
     let subscriber = subscriptions::ActiveModel {
         id: Set(Uuid::new_v4()),
@@ -48,14 +48,14 @@ pub async fn subscribe(
         subscribed_at: Set(chrono::Utc::now().into()),
         ..Default::default()
     }
-    .insert(txn)
+    .insert(&txn)
     .await?;
 
     let subscription_token = subscription_tokens::ActiveModel {
         subscriber_id: Set(subscriber.id),
         subscription_token: Set(Uuid::new_v4().to_string()),
     }
-    .insert(txn)
+    .insert(&txn)
     .await?;
 
     let html_body = get_email_content(&state, subscription_token);
@@ -63,6 +63,8 @@ pub async fn subscribe(
         .email_client
         .send_email(&new_subscriber.email, "Welcome!", &html_body)
         .await?;
+
+    txn.commit().await?;
 
     Ok(StatusCode::OK)
 }
