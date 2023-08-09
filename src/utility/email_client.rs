@@ -46,8 +46,6 @@ impl EmailClient {
             text_body: content.to_string(),
         };
 
-        info!("SendUrl: {:?}", url);
-
         self.http_client
             .post(&url.to_string())
             .json(&request_body)
