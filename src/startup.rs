@@ -2,6 +2,7 @@ use axum::{
     routing::{get, post},
     Router, Server,
 };
+use jsonwebtoken::{Algorithm, Header};
 use sea_orm::{Database, DatabaseConnection};
 use secrecy::ExposeSecret;
 use tower_http::trace::TraceLayer;
@@ -10,8 +11,8 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
-    confirm, health_check, subscribe, ApiDoc, DatabaseSettings, EmailClient, EmailClientSettings,
-    Settings,
+    confirm, health_check, login, subscribe, ApiDoc, DatabaseSettings, EmailClient,
+    EmailClientSettings, JwtHandler, JwtHandlerSettings, Settings,
 };
 
 pub struct Application {
@@ -23,17 +24,20 @@ impl Application {
     pub async fn build(config: &Settings) -> Result<Self, std::io::Error> {
         let database = get_database(&config.database).await.unwrap();
         let email_client = get_email_client(&config.email_client);
+        let jwt_handler = get_jwt_handler(&config.jwt_handler);
 
         let router = Router::new()
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
             .route("/health_check", get(health_check))
             .route("/subscriptions", post(subscribe))
             .route("/subscriptions/confirm/:token", get(confirm))
+            .route("/login", post(login))
             .layer(TraceLayer::new_for_http())
             .with_state(AppState {
                 database,
-                base_url: config.application.base_url.clone().parse().unwrap(),
+                base_url: config.application.base_url.parse().unwrap(),
                 email_client,
+                jwt_handler,
             });
 
         Ok(Self {
@@ -70,9 +74,19 @@ fn get_email_client(setting: &EmailClientSettings) -> EmailClient {
     )
 }
 
+fn get_jwt_handler(settings: &JwtHandlerSettings) -> JwtHandler {
+    JwtHandler {
+        private_key: settings.private_key.clone(),
+        public_key: settings.public_key.clone(),
+        header: Header::new(Algorithm::HS512),
+        expiration_minutes: settings.expiration_minutes,
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct AppState {
     pub database: DatabaseConnection,
     pub email_client: EmailClient,
     pub base_url: Url,
+    pub jwt_handler: JwtHandler,
 }

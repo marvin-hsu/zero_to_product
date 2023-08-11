@@ -27,3 +27,12 @@ pub enum SubscriptionTokens {
     SubscriptionToken,
     SubscriberId,
 }
+
+#[derive(Iden)]
+pub enum Users {
+    Table,
+    Id,
+    UserName,
+    Password,
+    CreatedAt,
+}

@@ -16,3 +16,12 @@ email_client:
   sender_email: "test@gmail.com"
   api_key: "test_key"
   timeout_milliseconds: 10000
+jwt_handler:
+  private_key: "test_key"
+  public_key: "test_key"
+  expiration_minutes: 60
+redis:
+  username: ""
+  password: ""
+  host: "localhost"
+  port: 6379

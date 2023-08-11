@@ -9,6 +9,7 @@ pub struct Settings {
     pub database: DatabaseSettings,
     pub application: ApplicationSettings,
     pub email_client: EmailClientSettings,
+    pub jwt_handler: JwtHandlerSettings,
 }
 
 pub enum Environment {
@@ -31,7 +32,6 @@ pub struct DatabaseSettings {
 pub struct ApplicationSettings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
-    // pub host: String,
     pub base_url: String,
     pub logging_levels: Vec<String>,
 }
@@ -43,6 +43,14 @@ pub struct EmailClientSettings {
     pub api_key: Secret<String>,
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub timeout_milliseconds: u64,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct JwtHandlerSettings {
+    pub private_key: Secret<String>,
+    pub public_key: String,
+    #[serde(deserialize_with = "deserialize_number_from_string")]
+    pub expiration_minutes: i64,
 }
 
 impl Environment {
