@@ -7,6 +7,7 @@ mod handler;
 mod startup;
 mod telemetry;
 mod utility;
+mod middleware;
 
 pub use configuration::*;
 pub use doc::*;
@@ -17,3 +18,4 @@ pub use handler::*;
 pub use startup::*;
 pub use telemetry::*;
 pub use utility::*;
+pub use middleware::*;
