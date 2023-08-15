@@ -11,19 +11,23 @@
     const login = () => {
         promise = fetch(url, {
             method: "Post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: 'include',
             body: JSON.stringify({
                 "user_name": username,
                 "password": password
             })
         })
-            .then(response => response.json())
+            .then(response => console.log(response))
     };
 </script>
 
 
-<Input icon={Person} placeholder="username" bind:username/>
+<Input icon={Person} placeholder="username" bind:value={username}/>
 
-<Input icon="{Keyboard}" placeholder="password" type="password" bind:password/>
+<Input icon="{Keyboard}" placeholder="password" type="password" bind:value={password}/>
 
 <Button color="indigo" on:click={login}>
     Login

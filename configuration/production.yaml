@@ -1,5 +1,8 @@
 application:
   base_url: "https://marvinhsu-zero-to-production.fly.dev/"
+  cors_base_url:
+    - "https://marvinhsu-zero-to-production-website.fly.dev"
+    - "https://marvinhsu-zero-to-production-website.fly.dev/"
 database:
   host: "marvinhsu-postgres.flycast"
   port: 5432

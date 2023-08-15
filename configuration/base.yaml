@@ -1,6 +1,9 @@
 application:
   port: 3000
   base_url: "http://localhost:3000/"
+  cors_base_url: 
+    - "http://localhost:5173"
+    - "http://localhost:5173/"
   logging_levels:
     - "zero_to_production=debug"
     - "tower_http=debug"

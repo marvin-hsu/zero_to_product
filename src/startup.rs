@@ -1,8 +1,9 @@
+use axum::http::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE};
+use axum::http::{HeaderValue, Method};
 use axum::{
     routing::{get, post},
     Router, Server,
 };
-use axum::http::HeaderValue;
 use jsonwebtoken::{Algorithm, Header};
 use sea_orm::{Database, DatabaseConnection};
 use secrecy::ExposeSecret;
@@ -14,8 +15,8 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
-    confirm, health_check, login, subscribe, ApiDoc, Authorization, DatabaseSettings, EmailClient,
-    EmailClientSettings, JwtHandler, JwtHandlerSettings, Settings,
+    confirm, health_check, login, subscribe, ApiDoc, ApplicationSettings, Authorization,
+    DatabaseSettings, EmailClient, EmailClientSettings, JwtHandler, JwtHandlerSettings, Settings,
 };
 
 pub struct Application {
@@ -28,6 +29,7 @@ impl Application {
         let database = get_database(&config.database).await.unwrap();
         let email_client = get_email_client(&config.email_client);
         let jwt_handler = get_jwt_handler(&config.jwt_handler);
+        let cors = get_cors_layer(&config.application);
         let auth = Authorization {
             jwt_handler: jwt_handler.clone(),
         };
@@ -39,9 +41,7 @@ impl Application {
             .route("/subscriptions/confirm/:token", get(confirm))
             .route("/login", post(login))
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
-            .layer(CorsLayer::new()
-                .allow_credentials(true)
-                .allow_origin("http://localhost:5173/".parse::<HeaderValue>().unwrap()))
+            .layer(cors)
             .layer(TraceLayer::new_for_http())
             .with_state(AppState {
                 database,
@@ -91,6 +91,20 @@ fn get_jwt_handler(settings: &JwtHandlerSettings) -> JwtHandler {
         header: Header::new(Algorithm::HS512),
         expiration_minutes: settings.expiration_minutes,
     }
+}
+
+fn get_cors_layer(settings: &ApplicationSettings) -> CorsLayer {
+    CorsLayer::new()
+        .allow_origin(
+            settings
+                .cors_base_url
+                .iter()
+                .map(|url| url.parse().unwrap())
+                .collect::<Vec<HeaderValue>>(),
+        )
+        .allow_methods([Method::GET, Method::POST])
+        .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCEPT])
+        .allow_credentials(true)
 }
 
 #[derive(Clone, Debug)]

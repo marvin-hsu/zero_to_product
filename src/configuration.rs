@@ -34,6 +34,7 @@ pub struct ApplicationSettings {
     pub port: u16,
     pub base_url: String,
     pub logging_levels: Vec<String>,
+    pub cors_base_url: Vec<String>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
