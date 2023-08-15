@@ -32,11 +32,12 @@ impl JwtHandler {
     }
 
     pub fn decode_token(self, token: String) -> Result<Claims> {
-        let key = self.private_key.expose_secret().as_ref();
+        let mut validation = jsonwebtoken::Validation::new(Algorithm::HS512);
+        validation.sub = Some("zero_to_production".to_string());
         decode::<Claims>(
             &token,
-            &DecodingKey::from_secret(key),
-            &jsonwebtoken::Validation::new(Algorithm::HS512),
+            &DecodingKey::from_secret(self.private_key.expose_secret().as_ref()),
+            &validation,
         )
         .map(|data| data.claims)
     }

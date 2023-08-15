@@ -5,7 +5,6 @@ use axum::{
 use jsonwebtoken::{Algorithm, Header};
 use sea_orm::{Database, DatabaseConnection};
 use secrecy::ExposeSecret;
-use tower_http::auth::AsyncRequireAuthorizationLayer;
 use tower_http::trace::TraceLayer;
 use tower_http::validate_request::ValidateRequestHeaderLayer;
 use url::Url;
@@ -13,8 +12,8 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
-    confirm, health_check, login, subscribe, ApiDoc, DatabaseSettings, EmailClient,
-    EmailClientSettings, JwtHandler, JwtHandlerSettings, Settings, Authorization
+    confirm, health_check, login, subscribe, ApiDoc, Authorization, DatabaseSettings, EmailClient,
+    EmailClientSettings, JwtHandler, JwtHandlerSettings, Settings,
 };
 
 pub struct Application {
@@ -32,12 +31,12 @@ impl Application {
         };
 
         let router = Router::new()
-            .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
-            .route("/health_check", get(health_check))
             .layer(ValidateRequestHeaderLayer::custom(auth))
+            .route("/health_check", get(health_check))
             .route("/subscriptions", post(subscribe))
             .route("/subscriptions/confirm/:token", get(confirm))
             .route("/login", post(login))
+            .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
             .layer(TraceLayer::new_for_http())
             .with_state(AppState {
                 database,

@@ -19,7 +19,7 @@ email_client:
 jwt_handler:
   private_key: "test_key"
   public_key: "test_key"
-  expiration_minutes: 60
+  expiration_minutes: 30
 redis:
   username: ""
   password: ""

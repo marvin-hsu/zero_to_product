@@ -39,7 +39,7 @@ pub async fn login(
         .filter(users::Column::UserName.eq(user.user_name))
         .one(&state.database)
         .await?
-        .ok_or(AppError::CustomWarning(
+        .ok_or(CustomWarning(
             StatusCode::NOT_FOUND,
             "Can't find User.".to_string(),
         ))?;
