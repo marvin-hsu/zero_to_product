@@ -39,7 +39,9 @@ impl Application {
             .route("/subscriptions/confirm/:token", get(confirm))
             .route("/login", post(login))
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
-            .layer(CorsLayer::new().allow_origin("http://localhost:5173/".parse::<HeaderValue>().unwrap()))
+            .layer(CorsLayer::new()
+                .allow_credentials(true)
+                .allow_origin("http://localhost:5173/".parse::<HeaderValue>().unwrap()))
             .layer(TraceLayer::new_for_http())
             .with_state(AppState {
                 database,
