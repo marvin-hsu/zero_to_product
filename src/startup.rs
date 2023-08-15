@@ -2,9 +2,11 @@ use axum::{
     routing::{get, post},
     Router, Server,
 };
+use axum::http::HeaderValue;
 use jsonwebtoken::{Algorithm, Header};
 use sea_orm::{Database, DatabaseConnection};
 use secrecy::ExposeSecret;
+use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 use tower_http::validate_request::ValidateRequestHeaderLayer;
 use url::Url;
@@ -37,6 +39,7 @@ impl Application {
             .route("/subscriptions/confirm/:token", get(confirm))
             .route("/login", post(login))
             .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()))
+            .layer(CorsLayer::new().allow_origin("http://localhost:5173/".parse::<HeaderValue>().unwrap()))
             .layer(TraceLayer::new_for_http())
             .with_state(AppState {
                 database,

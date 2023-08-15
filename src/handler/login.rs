@@ -54,6 +54,7 @@ pub async fn login(
 
         let cookie = Cookie::build("token", token.to_owned())
             .http_only(true)
+            // .secure(true)
             .finish();
 
         let mut headers = HeaderMap::new();
