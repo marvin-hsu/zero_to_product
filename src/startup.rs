@@ -15,8 +15,9 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::{
-    confirm, health_check, login, subscribe, ApiDoc, ApplicationSettings, Authorization,
-    DatabaseSettings, EmailClient, EmailClientSettings, JwtHandler, JwtHandlerSettings, Settings,
+    confirm, health_check, login, publish_newsletter, subscribe, ApiDoc, ApplicationSettings,
+    Authorization, DatabaseSettings, EmailClient, EmailClientSettings, JwtHandler,
+    JwtHandlerSettings, Settings,
 };
 
 pub struct Application {
@@ -35,6 +36,7 @@ impl Application {
         };
 
         let router = Router::new()
+            .route("/newsletters", post(publish_newsletter))
             .layer(ValidateRequestHeaderLayer::custom(auth))
             .route("/health_check", get(health_check))
             .route("/subscriptions", post(subscribe))
