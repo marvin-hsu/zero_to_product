@@ -16,7 +16,7 @@ pub struct NewsletterContent {
     content: Content,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 pub struct Content {
     text: String,
 }
