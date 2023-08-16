@@ -17,10 +17,17 @@ The following table shows the differences between the book and this repository:
 | DB tool          | sqlx          | seaORM              |
 | Integration test | rust build-in | pytest              |
 | CI Accelerate    | Cargo-chief   | Github-action cache |
+| Auth             | Session       | JWT                 |
+| Frontend         | html          | Svelte              |
 
-## SeaOEM migration  
+## Frontend
 
-1. Install sea-orm cli if haven't done  
+Website fronted is under
+preparing. [https://marvinhsu-zero-to-production-website.fly.dev/](https://marvinhsu-zero-to-production-website.fly.dev/)
+
+## SeaOEM migration
+
+1. Install sea-orm cli if haven't done
     ```bash
     cargo install sea-orm-cli
     ```
