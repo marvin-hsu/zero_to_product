@@ -1,11 +1,6 @@
 <script lang="ts">
-    import {Input, Loader, Notification} from '@svelteuidev/core';
-    import {Person, Keyboard, Check, Cross2} from 'radix-icons-svelte';
-    import {Button} from '@svelteuidev/core';
-
     let username = '';
     let password = '';
-
     const url = 'https://marvinhsu-zero-to-production.fly.dev/login'
     let promise: Promise<any>;
     const login = () => {
@@ -24,28 +19,46 @@
     };
 </script>
 
+<section class="vh-100">
+    <div class="container-fluid h-custom">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-9 col-lg-6 col-xl-5">
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+                     class="img-fluid" alt="Sample image">
+            </div>
+            <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+                <form>
+                    <!-- Email input -->
+                    <div class="form-outline mb-4">
+                        <label class="form-label" for="form3Example3">Username</label>
+                        <input type="text" id="form3Example3" class="form-control form-control-lg"
+                               placeholder="Enter username" bind:value={username}/>
+                    </div>
 
-<Input icon={Person} placeholder="username" bind:value={username}/>
+                    <!-- Password input -->
+                    <div class="form-outline mb-3">
+                        <label class="form-label" for="form3Example4">Password</label>
+                        <input type="password" id="form3Example4" class="form-control form-control-lg"
+                               placeholder="Enter password" bind:value={password}/>
+                    </div>
 
-<Input icon="{Keyboard}" placeholder="password" type="password" bind:value={password}/>
+                    <div class="text-center text-lg-start mt-4 pt-2">
+                        <button type="button" class="btn btn-primary btn-lg"
+                                style="padding-left: 2.5rem; padding-right: 2.5rem;"
+                                on:click={login}>
+                            Login
+                        </button>
+                    </div>
+                    {#await promise}
+                    {:then data}
+                    {:catch error}
+                    {/await}
 
-<Button color="indigo" on:click={login}>
-    Login
-</Button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-
-{#await promise}
-    <Loader/>
-{:then data}
-    <Notification title='Teal notification' icon={Check} color='teal'>
-        Login Success.
-    </Notification>
-{:catch error}
-    <Notification icon={Cross2} color='red'>
-        Login Failed.
-    </Notification>
-{/await}
-
-
+</section>
 
 
